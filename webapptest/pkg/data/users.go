@@ -9,14 +9,15 @@ import (
 
 // User 유형에 대한 데이터를 설명합니다.
 type User struct {
-	ID        int       `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"-"`
-	IsAdmin   int       `json:"is_admin"`
-	CreatedAt time.Time `json:"-"`
-	UpdatedAt time.Time `json:"-"`
+	ID         int       `json:"id"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	Email      string    `json:"email"`
+	Password   string    `json:"-"`
+	IsAdmin    int       `json:"is_admin"`
+	CreatedAt  time.Time `json:"-"`
+	UpdatedAt  time.Time `json:"-"`
+	ProfilePic UserImage `json:"-"`
 }
 
 // PasswordMatches는 Go의 bcrypt 패키지를 사용하여 사용자가 제공한 비밀번호와
