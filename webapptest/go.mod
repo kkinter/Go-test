@@ -5,8 +5,10 @@ go 1.20
 require (
 	github.com/alexedwards/scs/v2 v2.5.1
 	github.com/go-chi/chi/v5 v5.0.8
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/ory/dockertest/v3 v3.10.0
 	golang.org/x/crypto v0.6.0
 )
 
@@ -34,7 +36,6 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/opencontainers/runc v1.1.5 // indirect
-	github.com/ory/dockertest/v3 v3.10.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
