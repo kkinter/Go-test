@@ -90,6 +90,7 @@ func TestApp_renderWithBadTemplate(t *testing.T) {
 		t.Error("want error got no error")
 	}
 
+	pathToTemplates = "./templates/"
 }
 
 func getCtx(req *http.Request) context.Context {
