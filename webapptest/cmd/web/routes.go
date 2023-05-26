@@ -14,6 +14,7 @@ func (app *application) routes() http.Handler {
 	mux.Use(app.addIPToContext)
 
 	mux.Get("/", app.Home)
+	mux.Post("/login", app.Login)
 
 	// static assets
 	fileServer := http.FileServer(http.Dir("./static/"))

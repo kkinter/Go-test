@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -57,5 +59,21 @@ func Test_application_addIPToContext(t *testing.T) {
 		}
 
 		handlerToTest.ServeHTTP(httptest.NewRecorder(), req)
+	}
+}
+
+func Test_application_ipFromContext(t *testing.T) {
+	// create an app var of type application
+	var app application
+
+	// get a context and put something in the context
+	ctx := context.WithValue(context.Background(), contextUserKey, "whatever")
+
+	// call the function
+	ip := app.ipFromContext(ctx)
+
+	// perfom the test
+	if !strings.EqualFold("whatever", ip) {
+		t.Error("잘못된 값이 컨텍스트로 반환되었습니다.")
 	}
 }
