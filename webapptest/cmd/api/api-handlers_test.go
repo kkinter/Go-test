@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,8 @@ import (
 	"testing"
 	"time"
 	"wepapp/pkg/data"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func Test_app_authenticate(t *testing.T) {
@@ -91,4 +94,93 @@ func Test_app_refresh(t *testing.T) {
 		refreshTokenExpiry = oldRefreshTime
 	}
 
+}
+
+func Test_app_userHandlers(t *testing.T) {
+	var tests = []struct {
+		name           string
+		method         string
+		json           string
+		paramID        string
+		handler        http.HandlerFunc
+		wantStatusCode int
+	}{
+		{"allUsers", "GET", "", "", app.allUsers, http.StatusOK},
+		{"deleteUser", "DELETE", "", "1", app.deleteUser, http.StatusNoContent},
+		{"deleteUser bad URL param", "DELETE", "", "Z", app.deleteUser, http.StatusBadRequest},
+		{"getUser valid", "GET", "", "1", app.getUser, http.StatusOK},
+		{"getUser invalid", "GET", "", "100", app.getUser, http.StatusBadRequest},
+		{"getUser bad URL param", "GET", "", "Y", app.getUser, http.StatusBadRequest},
+		{
+			"updateUser valid",
+			"PATCH",
+			`{"id": 1, "first_name": "Administrator", "last_name":"User", "email": "admin@example.com"}`,
+			"",
+			app.updateUser,
+			http.StatusNoContent,
+		},
+		{
+			"updateUser invalid",
+			"PATCH",
+			`{"id": 100, "first_name": "Administrator", "last_name":"User", "email": "admin@example.com"}`,
+			"",
+			app.updateUser,
+			http.StatusBadRequest,
+		},
+		{
+			"updateUser invalid json",
+			"PATCH",
+			`{"id": 1, "first_name": "Administrator", last_name:"User", "email": "admin@example.com"}`,
+			"",
+			app.updateUser,
+			http.StatusBadRequest,
+		},
+		{
+			"insertUser valid",
+			"PUT",
+			`{"first_name": "Jack", "last_name":"wook", "email": "wook@example.com"}`,
+			"",
+			app.insertUser,
+			http.StatusNoContent,
+		},
+		{
+			"insertUser invalid",
+			"PUT",
+			`{"foo": "bar", "first_name": "Jack", "last_name":"wook", "email": "wook@example.com"}`,
+			"",
+			app.insertUser,
+			http.StatusBadRequest,
+		},
+		{
+			"insertUser invalid json",
+			"PUT",
+			`{first_name": Jack", "last_name":"wook", "email": "wook@example.com"}`,
+			"",
+			app.insertUser,
+			http.StatusBadRequest,
+		},
+	}
+
+	for _, e := range tests {
+		var req *http.Request
+		if e.json == "" {
+			req, _ = http.NewRequest(e.method, "/", nil)
+		} else {
+			req, _ = http.NewRequest(e.method, "/", strings.NewReader(e.json))
+		}
+
+		if e.paramID != "" {
+			chiCtx := chi.NewRouteContext()
+			chiCtx.URLParams.Add("userID", e.paramID)
+			req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiCtx))
+		}
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(e.handler)
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != e.wantStatusCode {
+			t.Errorf("%s: wrong status return want %d but got %d", e.name, rr.Code, e.wantStatusCode)
+		}
+	}
 }
